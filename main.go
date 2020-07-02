@@ -30,7 +30,6 @@ type Bug struct {
 	Location string `json:"location"`
 }
 
-var ErrNoMoreInput = errors.New("end of input")
 var ErrBadInput = errors.New("that's some bad input")
 
 var months = map[string]int{
@@ -121,6 +120,10 @@ func getFish() (Fish, error) {
 	if err != nil {
 		return fish, fmt.Errorf("failed reading name: %w", err)
 	}
+	// Ctrl-D doesn't work right on windows, so just treat this as that.
+	if strings.TrimSpace(name) == "" {
+		return fish, io.EOF
+	}
 	fish.Name = strings.TrimSpace(name)
 
 	fmt.Print("...price? ")
@@ -190,6 +193,10 @@ func getBug() (Bug, error) {
 	name, err := reader.ReadString('\n')
 	if err != nil {
 		return bug, fmt.Errorf("failed reading name: %w", err)
+	}
+	// Ctrl-D doesn't work right on windows, so just treat this as that.
+	if strings.TrimSpace(name) == "" {
+		return bug, io.EOF
 	}
 	bug.Name = strings.TrimSpace(name)
 
