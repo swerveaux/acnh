@@ -146,10 +146,10 @@ func getFish() (Fish, error) {
 
 	fmt.Print("...hours (24 hour ints in range, e.g. 8-17 for 8am to 5pm, or 'all'? ")
 	hoursStr, err := reader.ReadString('\n')
-	hoursStr = strings.ToLower(strings.TrimSpace(hoursStr))
 	if err != nil {
 		return fish, fmt.Errorf("failed reading hours: %w", err)
 	}
+	hoursStr = strings.ToLower(strings.TrimSpace(hoursStr))
 	if hoursStr == "all" {
 		fish.Hours = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
 	} else {
