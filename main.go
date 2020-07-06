@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -48,223 +48,132 @@ var months = map[string]int{
 }
 
 func main() {
-	var acnh ACNH
-	err := loadJSON(&acnh)
+	bugs, err := processBugs()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var bugMode, fishMode bool
-	if len(os.Args) > 1 {
-		if os.Args[1] == "-b" {
-			bugMode = true
-		}
-		if os.Args[1] == "-f" {
-			fishMode = true
-		}
-	}
-
-	if bugMode {
-		for {
-			bug, err := getBug()
-			if err != nil {
-				if errors.Is(err, io.EOF) {
-					break
-				}
-				log.Fatal(err)
-			}
-			acnh.Bugs = append(acnh.Bugs, bug)
-		}
-	}
-
-	if fishMode {
-		for {
-			fish, err := getFish()
-			if err != nil {
-				if errors.Is(err, io.EOF) {
-					break
-				}
-				log.Fatal(err)
-			}
-			acnh.Fishes = append(acnh.Fishes, fish)
-		}
-	}
-
-	err = saveJSON(acnh)
+	fishes, err := processFish()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	acnh := ACNH{
+		Bugs:   bugs,
+		Fishes: fishes,
+	}
+
+	outFull, err := os.Create("acnh.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer outFull.Close()
+	json.NewEncoder(outFull).Encode(acnh)
 }
 
-func loadJSON(acnh *ACNH) error {
-	f, err := os.Open("acnh.json")
+func processBugs() ([]Bug, error) {
+	var bugs []Bug
+	inFile, err := os.Open("bugs.csv")
 	if err != nil {
-		return fmt.Errorf("unable to open acnh.json: %w", err)
+		return bugs, fmt.Errorf("unable to open bugs CSV file: %w", err)
 	}
-	defer f.Close()
+	defer inFile.Close()
 
-	err = json.NewDecoder(f).Decode(acnh)
+	r := csv.NewReader(inFile)
+	// Read off header line
+	_, err = r.Read()
 	if err != nil {
-		return fmt.Errorf("unable to decode acnh.json: %w", err)
+		return bugs, fmt.Errorf("somehow errored reading header line on bugs input file: %w", err)
 	}
 
-	return nil
+	for {
+		fields, err := r.Read()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				fmt.Println("Reached end of bugs input file.")
+				break
+			}
+		}
+
+		fmt.Printf("processing %s\n", fields[0])
+		price, err := strconv.Atoi(fields[1])
+		if err != nil {
+			return bugs, fmt.Errorf("price '%s' in '%s' was not a valid int: %w", fields[1], fields[0], err)
+		}
+		months, err := parseMonths(fields[2])
+		if err != nil {
+			return bugs, fmt.Errorf("months '%s' in '%s' was not a valid month range: %w", fields[2], fields[0], err)
+		}
+		hours, err := parseHours(fields[3])
+		if err != nil {
+			return bugs, fmt.Errorf("hours '%s' in '%s' was not a valid hour range: %w", fields[3], fields[0], err)
+		}
+
+		bug := Bug{
+			fields[0],
+			price,
+			months,
+			hours,
+			fields[4],
+		}
+		bugs = append(bugs, bug)
+	}
+
+	return bugs, nil
 }
 
-func getFish() (Fish, error) {
-	var fish Fish
+func processFish() ([]Fish, error) {
+	var fishes []Fish
+	inFile, err := os.Open("fish.csv")
+	if err != nil {
+		return fishes, fmt.Errorf("unable to open fish CSV file: %w", err)
+	}
+	defer inFile.Close()
 
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Fish's name? ")
-	name, err := reader.ReadString('\n')
+	r := csv.NewReader(inFile)
+	// Read off header line
+	_, err = r.Read()
 	if err != nil {
-		return fish, fmt.Errorf("failed reading name: %w", err)
+		return fishes, fmt.Errorf("somehow errored reading header line on fishes input file: %w", err)
 	}
-	// Ctrl-D doesn't work right on windows, so just treat this as that.
-	if strings.TrimSpace(name) == "" {
-		return fish, io.EOF
-	}
-	fish.Name = strings.TrimSpace(name)
 
-	fmt.Print("...price? ")
-	price, err := reader.ReadString('\n')
-	if err != nil {
-		return fish, fmt.Errorf("failed reading price: %w", err)
-	}
-	p, err := strconv.Atoi(strings.TrimSpace(price))
-	if err != nil {
-		return fish, ErrBadInput
-	}
-	fish.Price = p
-
-	fmt.Print("...location? ")
-	location, err := reader.ReadString('\n')
-	if err != nil {
-		return fish, fmt.Errorf("failed reading location: %w", err)
-	}
-	fish.Location = strings.TrimSpace(location)
-
-	fmt.Print("...hours (24 hour ints in range, e.g. 8-17 for 8am to 5pm, or 'all'? ")
-	hoursStr, err := reader.ReadString('\n')
-	if err != nil {
-		return fish, fmt.Errorf("failed reading hours: %w", err)
-	}
-	hoursStr = strings.ToLower(strings.TrimSpace(hoursStr))
-	if hoursStr == "all" {
-		fish.Hours = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
-	} else {
-		h, err := rangeString(hoursStr, 24)
+	for {
+		fields, err := r.Read()
 		if err != nil {
-			return fish, err
+			if errors.Is(err, io.EOF) {
+				fmt.Println("Reached end of fish input file.")
+				break
+			}
 		}
-		fish.Hours = h
-	}
 
-	fmt.Print("...during months (e.g., 'March-September', 'aug-oct', 'Sept-apr', or 'all' if all)? ")
-	monthsStr, err := reader.ReadString('\n')
-	monthsStr = strings.ToLower(strings.TrimSpace(monthsStr))
-	if err != nil {
-		return fish, fmt.Errorf("failed reading months: %w", err)
-	}
-	if monthsStr == "all" {
-		fish.Months = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
-	} else {
-		fish.Months, err = rangeMonths(monthsStr)
+		fmt.Printf("processing %s\n", fields[0])
+		price, err := strconv.Atoi(fields[1])
 		if err != nil {
-			return fish, ErrBadInput
+			return fishes, fmt.Errorf("price '%s' in '%s' was not a valid int: %w", fields[1], fields[0], err)
 		}
-	}
-
-	fmt.Print("...shadow size? ")
-	shadowSize, err := reader.ReadString('\n')
-	if err != nil {
-		return fish, fmt.Errorf("failed reading shadow size: %w", err)
-	}
-	fish.ShadowSize = strings.TrimSpace(shadowSize)
-
-	return fish, nil
-}
-
-func getBug() (Bug, error) {
-	var bug Bug
-
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Bugs's name? ")
-	name, err := reader.ReadString('\n')
-	if err != nil {
-		return bug, fmt.Errorf("failed reading name: %w", err)
-	}
-	// Ctrl-D doesn't work right on windows, so just treat this as that.
-	if strings.TrimSpace(name) == "" {
-		return bug, io.EOF
-	}
-	bug.Name = strings.TrimSpace(name)
-
-	fmt.Print("...price? ")
-	price, err := reader.ReadString('\n')
-	if err != nil {
-		return bug, fmt.Errorf("failed reading price: %w", err)
-	}
-	p, err := strconv.Atoi(strings.TrimSpace(price))
-	if err != nil {
-		return bug, ErrBadInput
-	}
-	bug.Price = p
-
-	fmt.Print("...during months (e.g., 'March-September', 'aug-oct', 'Sept-apr', or 'all' if all)? ")
-	monthsStr, err := reader.ReadString('\n')
-	monthsStr = strings.ToLower(strings.TrimSpace(monthsStr))
-	if err != nil {
-		return bug, fmt.Errorf("failed reading months: %w", err)
-	}
-	if monthsStr == "all" {
-		bug.Months = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
-	} else {
-		bug.Months, err = rangeMonths(monthsStr)
+		months, err := parseMonths(fields[4])
 		if err != nil {
-			return bug, ErrBadInput
+			return fishes, fmt.Errorf("months '%s' in '%s' was not a valid month range: %w", fields[4], fields[0], err)
 		}
-	}
-
-	fmt.Print("...hours (24 hour ints in range, e.g. 8-17 for 8am to 5pm, or 'all'? ")
-	hoursStr, err := reader.ReadString('\n')
-	hoursStr = strings.ToLower(strings.TrimSpace(hoursStr))
-	if err != nil {
-		return bug, fmt.Errorf("failed reading hours: %w", err)
-	}
-	if hoursStr == "all" {
-		bug.Hours = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
-	} else {
-		h, err := rangeString(hoursStr, 24)
+		hours, err := parseHours(fields[3])
 		if err != nil {
-			return bug, err
+			return fishes, fmt.Errorf("hours '%s' in '%s' was not a valid hour range: %w", fields[3], fields[0], err)
 		}
-		bug.Hours = h
+
+		fish := Fish{
+			Bug{
+				fields[0],
+				price,
+				months,
+				hours,
+				fields[2],
+			},
+			fields[5],
+		}
+		fishes = append(fishes, fish)
 	}
 
-	fmt.Print("...location? ")
-	location, err := reader.ReadString('\n')
-	if err != nil {
-		return bug, fmt.Errorf("failed reading location: %w", err)
-	}
-	bug.Location = strings.TrimSpace(location)
-
-	return bug, nil
-}
-
-func saveJSON(acnh ACNH) error {
-	f, err := os.Create("acnh.json")
-	if err != nil {
-		return fmt.Errorf("unable to open acnh.json for writing: %w", err)
-	}
-	defer f.Close()
-
-	err = json.NewEncoder(f).Encode(acnh)
-	if err != nil {
-		return fmt.Errorf("unable to encode acnh.json: %w", err)
-	}
-
-	return nil
+	return fishes, nil
 }
 
 func rangeString(r string, mod int) ([]int, error) {
@@ -317,4 +226,135 @@ func rangeMonths(r string) ([]int, error) {
 	}
 
 	return rangeNums(min, max, 12), nil
+}
+
+func parseMonths(ms string) ([]int, error) {
+	if strings.TrimSpace(strings.ToLower(ms)) == "all" {
+		return rng(0, 11), nil
+	}
+
+	splits := strings.Split(ms, ",")
+	for i := range splits {
+		splits[i] = strings.TrimSpace(splits[i])
+	}
+
+	// Single month
+	if len(splits) == 1 && !strings.HasPrefix(strings.ToLower(splits[0]), "all except ") {
+		mi, ok := months[strings.ToLower(splits[0])[:3]]
+		if !ok {
+			return []int{}, errors.New(fmt.Sprintf("single element in months that was neither a valid month or 'all': '%s'", splits[0]))
+		}
+		return []int{mi}, nil
+	}
+
+	if strings.HasPrefix(strings.ToLower(splits[0]), "all except ") {
+		splits[0] = splits[0][11:]
+		splits = invertMonths(splits)
+	}
+
+	// Multiple months
+	var mons []int
+	for _, m := range splits {
+		if m == "" {
+			continue
+		}
+		mi, ok := months[strings.ToLower(m)[:3]]
+		if !ok {
+			return []int{}, errors.New(fmt.Sprintf("element in list was neither a valid month or 'all': '%s'", m))
+		}
+		mons = append(mons, mi)
+	}
+
+	return mons, nil
+}
+
+func parseHours(hs string) ([]int, error) {
+	hs = strings.TrimSpace(strings.ToLower(hs))
+	if hs == "all" {
+		return rng(0, 23), nil
+	}
+
+	hours := make([]int, 0, 24)
+	splits := strings.Split(hs, ",")
+	for i := range splits {
+		pair := strings.Split(strings.TrimSpace(splits[i]), "-")
+		if len(pair) != 2 {
+			return hours, errors.New(fmt.Sprintf("unknown format: '%s'", splits[i]))
+		}
+		start, err := parseTime(pair[0])
+		if err != nil {
+			return hours, err
+		}
+		end, err := parseTime(pair[1])
+		if err != nil {
+			return hours, err
+		}
+		// Weirdness if time boundary goes past midnight
+		if end < start {
+			hours = append(hours, rng(start, 23)...)
+			hours = append(hours, rng(0, end-1)...)
+		} else {
+			hours = append(hours, rng(start, end-1)...)
+		}
+	}
+
+	return hours, nil
+}
+
+func parseTime(ts string) (int, error) {
+	ts = strings.TrimSpace(strings.ToLower(ts))
+	if !strings.HasSuffix(ts, "am") && !strings.HasSuffix(ts, "pm") {
+		return 0, errors.New(fmt.Sprintf("time must end with either 'am' or 'pm': '%s'", ts))
+	}
+	// Special case 12am and 12pm because time is weird.
+	if ts == "12pm" {
+		return 12, nil
+	}
+	if ts == "12am" {
+		return 0, nil
+	}
+	var isPM bool
+	if strings.HasSuffix(ts, "pm") {
+		isPM = true
+	}
+	hour, err := strconv.Atoi(ts[:len(ts)-2])
+	if err != nil {
+		return 0, err
+	}
+	if isPM {
+		hour += 12
+	}
+	return hour % 24, nil
+}
+
+func invertMonths(ms []string) []string {
+	allMonths := make(map[string]bool)
+	mons := []string{"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"}
+	for _, m := range mons {
+		allMonths[m] = true
+	}
+
+	for _, m := range ms {
+		allMonths[strings.ToLower(m)[:3]] = false
+	}
+
+	var invertedMonths []string
+	for k, v := range allMonths {
+		if v {
+			invertedMonths = append(invertedMonths, k)
+		}
+	}
+
+	return invertedMonths
+}
+
+func rng(min, max int) []int {
+	if min > max {
+		min, max = max, min
+	}
+	r := make([]int, max-min+1)
+	for i := 0; i < max-min+1; i++ {
+		r[i] = i + min
+	}
+	return r
 }

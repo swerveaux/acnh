@@ -1,0 +1,81 @@
+Name,Price,Where,Hours,Months,Shadow Size
+Anchovy,200,Sea,4AM-9PM,All,Small
+Angelfish,3000,River,4PM-9AM,"May, June, July, August, September, October",Small
+Arapaima,10000,River,4PM-9AM,"June, July, August, September",XXL
+Arowana,10000,River,4PM-9AM,"June, July, August, September",Large
+Barred Knifejaw,5000,Sea,All,"March, April, May, June, July, August, September, October, November",Medium
+Barreleye,15000,Sea,9PM-4AM,All,Small
+Betta,2500,River,9AM-4PM,"May, June, July, August, September, October",Small
+Bitterling,900,River,All,"January, February, March, November, December",Tiny
+Black Bass,400,River,All,All,Large
+Blowfish,5000,Sea,9PM-4AM,"January, February, November, December",Medium
+Blue Marlin,10000,Pier,All,"January, February, March, April, July, August, September, November, December",XXL
+Bluegill,180,River,9AM-4PM,All,Small
+Butterfly Fish,1000,Sea,All,"April, May, June, July, August, September",Small
+Carp,300,Pond,All,All,Large
+Catfish,800,Pond,4PM-9AM,"May, June, July, August, September, October",Large
+Char,3800,River (clifftop),4PM-9AM,"March, April, May, June, September, October, November",Medium
+Cherry Salmon,1000,River (clifftop),4PM-9AM,"March, April, May, June, September, October, November",Medium
+Clown Fish,650,Sea,All,"April, May, June, July, August, September",Tiny
+Coelacanth,15000,Sea (rainy day),All,All,XXL
+Crawfish,200,Pond,All,"April, May, June, July, August, September",Small
+Crucian Carp,160,River,All,All,Small
+Dab,300,Sea,All,"January, February, March, April, October, November, December",Medium
+Dace,240,River,4PM-9AM,All,Medium
+Dorado,15000,River,4AM-9PM,"June, July, August, September",XL
+Football Fish,2500,Sea,4PM-9AM,"January, February, March, November, December",Large
+Freshwater Goby,400,River,4PM-9AM,All,Small
+Frog,120,Pond,All,"May, June, July, August",Small
+Gar,6000,Pond,4PM-9AM,"June, July, August, September",XXL
+Giant Snakehead,5500,Pond,9AM-4PM,"June, July, August",XL
+Giant Trevally,4500,Pier,All,"May, June, July, August, September, October",XL
+Golden Trout,15000,River (clifftop),4PM-9AM,"March, April, May, September, October, November",Medium
+Goldfish,1300,Pond,All,All,Tiny
+Great White Shark,15000,Sea,4PM-9AM,"June, July, August, September",XXL - with an extra fin
+Guppy,1300,River,9AM-4PM,"April, May, June, July, August, September, October, November",Tiny
+Hammerhead Shark,8000,Sea,4PM-9AM,"June, July, August, September",XXL - with an extra fin
+Horse Mackerel,150,Sea,All,All,Small
+Killifish,300,Pond,All,"April, May, June, July, August",Tiny
+King Salmon,1800,River (mouth),All,September,XXL
+Koi,4000,Pond,4PM-9AM,All,Large
+Loach,400,River,All,"March, April, May",Small
+Mahi-mahi,6000,Pier,All,"May, June, July, August, September, October",XL
+Mitten Crab,2000,River,4PM-9AM,"September, October, November",Small
+Moray Eel,2000,Sea,All,"August, September, October",Unique - Long/thin/narrow
+Napoleonfish,10000,Sea,4AM-9PM,"July, August",XXL
+Neon Tetra,500,River,9AM-4PM,"April, May, June, July, August, September, October, November",TIny
+Nibble Fish,1500,River,9AM-4PM,"May, June, July, August, September",Tiny
+Oarfish,9000,Sea,All,"January, February, March, April, May, December",XXL
+Ocean Sunfish,4000,Sea,4AM-9PM,"July, August, September",XXL - with an extra fin
+Olive Flounder,800,Sea,All,All,XL
+Pale Chub,200,River,9AM-4PM,All,Tiny
+Pike,1800,River,All,"September, October, November, December",XL
+Piranha,2500,River,"9AM-4PM, 9PM-4AM","June, July, August, September",Small
+Pond Smelt,500,River,All,"January, February, December",Small
+Pop-eyed Goldfish,1300,Pond,9AM-4PM,All,Tiny
+Puffer Fish,250,Sea,All,"July, August, September",Medium
+Rainbowfish,800,River,9AM-4PM,"May, June, July, August, September, October",Tiny
+Ranchu Goldfish,4500,Pond,9AM-4PM,All,Small
+Ray,3000,Sea,4AM-9PM,"August, September, October, November",XL
+Red Snapper,3000,Sea,All,All,Large
+Ribbon Eel,600,Sea,All,"June, July, August, September, October",Unique - long/thin/narrow
+Saddled Bichir,4000,River,9PM-4AM,"June, July, August, September",Large
+Salmon,700,River (mouth),All,September,Large
+Saw Shark,12000,Sea,4PM-9AM,"June, July, August, September",XXL - with an extra fin
+Sea Bass,400,Sea,All,All,XL
+Sea Butterfly,1000,Sea,All,"January, February, March, December",Tiny
+Sea Horse,1100,Sea,All,"April, May, June, July, August, September, October, November",Tiny
+Snapping Turtle,5000,River,9PM-4AM,"April, May, June, July, August, September, October",XL
+Soft-shelled Turtle,3750,River,4PM-9AM,"August, September",Large
+Squid,500,Sea,All,"January, February, March, April, May, June, July, August, December",Medium
+Stringfish,15000,River (clifftop),4PM-9AM,"January, February, March, December",XL
+Sturgeon,10000,River (mouth),All,"January, February, March, September, October, November, December",XXL
+Suckerfish,1500,Sea,All,"June, July, August, September",Large- with an extra fin
+Surgeonfish,1000,Sea,All,"April, May, June, July, August, September",Small
+Sweetfish,900,River,All,"July, August, September",Medium
+Tadpole,100,Pond,All,"March, April, May, June, July",Tiny
+Tilapia,800,River,All,"June, July, August, September, October",Medium
+Tuna,7000,Pier,All,"January, February, March, April, November, December",XXL
+Whale Shark,13000,Sea,All,"June, July, August, September",XXL - with an extra fin
+Yellow Perch,300,River,All,"January, February, March, October, November, December",Medium
+Zebra Turkeyfish,500,Sea,All,"April, May, June, July, August, September, October, November",Medium
