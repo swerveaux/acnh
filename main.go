@@ -13,8 +13,9 @@ import (
 )
 
 type ACNH struct {
-	Bugs   []Bug  `json:"bugs"`
-	Fishes []Fish `json:"fishes"`
+	Bugs         []Bug         `json:"bugs"`
+	Fishes       []Fish        `json:"fishes"`
+	SeaCreatures []SeaCreature `json:"sea_creatures"`
 }
 
 type Fish struct {
@@ -28,6 +29,13 @@ type Bug struct {
 	Months   []int  `json:"months"`
 	Hours    []int  `json:"hours"`
 	Location string `json:"location"`
+}
+
+type SeaCreature struct {
+	Name   string `json:"name"`
+	Price  int    `json:"price"`
+	Hours  []int  `json:"hours"`
+	Months []int  `json:"months"`
 }
 
 var ErrBadInput = errors.New("that's some bad input")
@@ -58,9 +66,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	seaCreatures, err := processSeaCreatures()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	acnh := ACNH{
-		Bugs:   bugs,
-		Fishes: fishes,
+		Bugs:         bugs,
+		Fishes:       fishes,
+		SeaCreatures: seaCreatures,
 	}
 
 	outFull, err := os.Create("acnh.json")
@@ -176,56 +190,54 @@ func processFish() ([]Fish, error) {
 	return fishes, nil
 }
 
-func rangeString(r string, mod int) ([]int, error) {
-	pair := strings.Split(strings.TrimSpace(r), "-")
-	if len(pair) != 2 {
-		return []int{}, errors.New("range must be two numbers separated by a '-'")
-	}
-
-	min, err := strconv.Atoi(pair[0])
+func processSeaCreatures() ([]SeaCreature, error) {
+	var scs []SeaCreature
+	inFile, err := os.Open("seacreatures.csv")
 	if err != nil {
-		return []int{}, fmt.Errorf("min in range was not an int: %w", err)
+		return scs, fmt.Errorf("unable to open sea creatures CSV file: %w", err)
 	}
+	defer inFile.Close()
 
-	max, err := strconv.Atoi(pair[1])
+	r := csv.NewReader(inFile)
+	// Read off header line
+	_, err = r.Read()
 	if err != nil {
-		return []int{}, fmt.Errorf("max in range was not an int: %w", err)
+		return scs, fmt.Errorf("somehow errored reading header line on sea creatures input file: %w", err)
 	}
 
-	return rangeNums(min, max, mod), nil
-}
+	for {
+		fields, err := r.Read()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				fmt.Println("Reached end of sea creatures input file.")
+				break
+			}
+		}
 
-func rangeNums(min, max, mod int) []int {
-	if max < min {
-		max += mod
+		fmt.Printf("processing %s\n", fields[0])
+		price, err := strconv.Atoi(strings.ReplaceAll(fields[1], ",", ""))
+		if err != nil {
+			return scs, fmt.Errorf("price '%s' in '%s' was not a valid int: %w", fields[1], fields[0], err)
+		}
+		months, err := parseMonths(fields[3])
+		if err != nil {
+			return scs, fmt.Errorf("months '%s' in '%s' was not a valid month range: %w", fields[3], fields[0], err)
+		}
+		hours, err := parseHours(fields[2])
+		if err != nil {
+			return scs, fmt.Errorf("hours '%s' in '%s' was not a valid hour range: %w", fields[2], fields[0], err)
+		}
+
+		sc := SeaCreature{
+			fields[0],
+			price,
+			hours,
+			months,
+		}
+		scs = append(scs, sc)
 	}
 
-	nums := make([]int, max-min+1)
-	for i := range nums {
-		nums[i] = (min + i) % mod
-	}
-	return nums
-}
-
-func rangeMonths(r string) ([]int, error) {
-	pair := strings.Split(strings.TrimSpace(r), "-")
-	if len(pair) != 2 {
-		return []int{}, errors.New("range must be 'month-month'")
-	}
-
-	minMonth := strings.ToLower(strings.TrimSpace(pair[0]))[:3]
-	min, ok := months[minMonth]
-	if !ok {
-		return []int{}, errors.New("couldn't find month " + minMonth)
-	}
-
-	maxMonth := strings.ToLower(strings.TrimSpace(pair[1]))[:3]
-	max, ok := months[maxMonth]
-	if !ok {
-		return []int{}, errors.New("couldn't find month " + maxMonth)
-	}
-
-	return rangeNums(min, max, 12), nil
+	return scs, nil
 }
 
 func parseMonths(ms string) ([]int, error) {
