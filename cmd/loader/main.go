@@ -38,8 +38,6 @@ type SeaCreature struct {
 	Months []int  `json:"months"`
 }
 
-var ErrBadInput = errors.New("that's some bad input")
-
 var months = map[string]int{
 	"jan": 0,
 	"feb": 1,
