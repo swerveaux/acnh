@@ -1,0 +1,7 @@
+tr.available {
+    background-color: lightgreen;
+}
+
+tr.unavailable {
+    background-color: lightpink;
+}

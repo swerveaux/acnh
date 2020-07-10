@@ -1,0 +1,116 @@
+<html>
+<head>
+    <title>Animal Crossing Critter Status</title>
+    <script type="text/javascript" src="/sortable.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<h2>Bugs available this month</h2>
+<table class="sortable">
+    <thead>
+    <tr>
+        <th>Donated?</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Availability</th>
+        <th>Location</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range .Bugs }}
+        {{ if .Timing.AvailableNow }}
+            <tr class="available">
+        {{ else }}
+            <tr class="unavailable">
+        {{ end }}
+            <td><input type="checkbox" class="donated_checkbox" data-name="{{ .Name }}" /></td>
+            <td>{{ .Name }}</td>
+            <td>{{ .Price }}</td>
+            <td>
+                {{ if .Timing.AvailableAllDay }}
+                    All Day
+                {{ else if .Timing.AvailableNow }}
+                    Until {{ .Timing.DisplayUntil }}
+                {{ else }}
+                    Starting at {{ .Timing.DisplayAt }}
+                {{ end }}
+
+            </td>
+            <td>{{ .Location }}</td>
+        </tr>
+    {{ end }}
+    </tbody>
+</table>
+
+<h2>Fish available this month</h2>
+<table class="sortable">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Location</th>
+        <th>Availability</th>
+        <th>Shadow Size</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range .Fishes }}
+        {{ if .Timing.AvailableNow }}
+            <tr class="available">
+        {{ else }}
+            <tr class="unavailable">
+        {{ end }}
+            <td>{{ .Name }}</td>
+            <td>{{ .Price }}</td>
+            <td>{{ .Location }}</td>
+            <td>
+                {{ if .Timing.AvailableAllDay }}
+                    All Day
+                {{ else if .Timing.AvailableNow }}
+                    Until {{ .Timing.DisplayUntil }}
+                {{ else }}
+                    Starting at {{ .Timing.DisplayAt }}
+                {{ end }}
+            </td>
+            <td>{{ .ShadowSize }}</td>
+        </tr>
+    {{ end }}
+    </tbody>
+</table>
+
+<h2>Sea Creatures available this month</h2>
+<table class="sortable">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Availability</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range .SeaCreatures }}
+        {{ if .Timing.AvailableNow }}
+            <tr class="available">
+        {{ else }}
+            <tr class="unavailable">
+        {{ end }}
+        <td>{{ .Name }}</td>
+            <td>{{ .Price }}</td>
+            <td>
+                {{ if .Timing.AvailableAllDay }}
+                    All Day
+                {{ else if .Timing.AvailableNow }}
+                    Until {{ .Timing.DisplayUntil }}
+                {{ else }}
+                    Starting at {{ .Timing.DisplayAt }}
+                {{ end }}
+            </td>
+        </tr>
+    {{ end }}
+    </tbody>
+</table>
+</body>
+<script type="text/javascript" src="/acnh.js"></script>
+
+</html>
