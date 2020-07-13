@@ -111,27 +111,37 @@ func (t *Timing) DisplayUntil() string {
 }
 
 func main() {
-	critters, err := loadCritters()
+	logger := StdLogger{}
+	critters, err := loadCritters(logger)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tmpl, err := loadTemplate()
+	tmpl, err := loadTemplate(logger)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/", mainHandler(critters, tmpl))
-	http.HandleFunc("/sortable.js", sortableHandler())
-	http.HandleFunc("/style.css", cssHandler())
-	http.HandleFunc("/acnh.js", jsHandler())
+	http.HandleFunc("/", mainHandler(critters, tmpl, logger))
+	http.HandleFunc("/sortable.js", sortableHandler(logger))
+	http.HandleFunc("/style.css", cssHandler(logger))
+	http.HandleFunc("/acnh.js", jsHandler(logger))
+	logger.Log("Starting server", "port", "80")
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
-func sortableHandler() http.HandlerFunc {
-	file, _ := os.Open("js/sortable.js")
+func sortableHandler(logger Logger) http.HandlerFunc {
+	file, err := os.Open("js/sortable.js")
+	if err != nil {
+		logger.Log("failed to open sortable.js", "error", err)
+		return http.NotFound
+	}
 	defer file.Close()
-	js, _ := ioutil.ReadAll(file)
+	js, err := ioutil.ReadAll(file)
+	if err != nil {
+		logger.Log("failed to read sortable.js", "error", err)
+		return http.NotFound
+	}
 	jsStr := string(js)
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/javascript")
@@ -139,29 +149,49 @@ func sortableHandler() http.HandlerFunc {
 	}
 }
 
-func cssHandler() http.HandlerFunc {
+func cssHandler(logger Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		file, _ := os.Open("css/style.css")
+		file, err := os.Open("css/style.css")
+		if err != nil {
+			logger.Log("failed to open style.css", "error", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		defer file.Close()
-		css, _ := ioutil.ReadAll(file)
+		css, err := ioutil.ReadAll(file)
+		if err != nil {
+			logger.Log("failed to read style.css", "error", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		cssStr := string(css)
 		w.Header().Set("Content-Type", "text/css")
 		fmt.Fprint(w, cssStr)
 	}
 }
 
-func jsHandler() http.HandlerFunc {
+func jsHandler(logger Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		file, _ := os.Open("js/acnh.js")
+		file, err := os.Open("js/acnh.js")
+		if err != nil {
+			logger.Log("failed to open style.css", "error", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		defer file.Close()
-		js, _ := ioutil.ReadAll(file)
+		js, err := ioutil.ReadAll(file)
+		if err != nil {
+			logger.Log("failed to open style.css", "error", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		jsStr := string(js)
 		w.Header().Set("Content-type", "application/javascript")
 		fmt.Fprint(w, jsStr)
 	}
 }
 
-func mainHandler(critters ACNH, tmpl *template.Template) http.HandlerFunc {
+func mainHandler(critters ACNH, tmpl *template.Template, logger Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if tmpl == nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -172,6 +202,7 @@ func mainHandler(critters ACNH, tmpl *template.Template) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintln(w, "the Los Angeles time zone no longer exists...that's bad.")
+			logger.Log("failed loading timezone data", "error", err)
 			return
 		}
 		t := time.Now().In(loc)
@@ -201,7 +232,7 @@ func mainHandler(critters ACNH, tmpl *template.Template) http.HandlerFunc {
 	}
 }
 
-func loadCritters() (ACNH, error) {
+func loadCritters(logger Logger) (ACNH, error) {
 	var critters ACNH
 	file, err := os.Open("acnh.json")
 	if err != nil {
@@ -231,7 +262,7 @@ func setHourMap(h HourMapper) {
 	h.SetHourMap(hourMap)
 }
 
-func loadTemplate() (*template.Template, error) {
+func loadTemplate(logger Logger) (*template.Template, error) {
 	file, err := os.Open("templates/main.html")
 	if err != nil {
 		return nil, err

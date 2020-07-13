@@ -1,5 +1,5 @@
-var acnh = function() {
-    var checkboxes = document.querySelectorAll(".donated_checkbox");
+let acnh = function() {
+    let checkboxes = document.querySelectorAll(".donated_checkbox");
     checkboxes.forEach(function(checkbox) {
         checkbox.addEventListener("click", function(self) {
             console.log("I got clicked!");
@@ -23,7 +23,12 @@ var acnh = function() {
             window.localStorage.setItem(self.currentTarget.dataset["critter_type"], bugStr);
         })
     })
-}();
+
+    // Start by unhiding all the bug rows.
+    document.querySelectorAll(".bug_row").forEach(function(row) {
+        row.classList.remove("hidden");
+    })
+};
 
 function removeItemAll(arr, value) {
     var i = 0;
@@ -36,3 +41,5 @@ function removeItemAll(arr, value) {
     }
     return arr;
 }
+
+acnh();

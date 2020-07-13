@@ -20,9 +20,9 @@
     <tbody>
     {{ range .Bugs }}
         {{ if .Timing.AvailableNow }}
-            <tr class="available">
+            <tr class="available hidden bug_row">
         {{ else }}
-            <tr class="unavailable">
+            <tr class="unavailable hidden bug_row">
         {{ end }}
             <td><input type="checkbox" class="donated_checkbox" data-name="{{ .Name }}" data-critter_type="bugs" /></td>
             <td>{{ .Name }}</td>

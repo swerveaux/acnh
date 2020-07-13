@@ -5,3 +5,7 @@ tr.available {
 tr.unavailable {
     background-color: lightpink;
 }
+
+tr.hidden {
+    display: none;
+}
