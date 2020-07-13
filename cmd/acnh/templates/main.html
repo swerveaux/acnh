@@ -7,7 +7,8 @@
 <body>
 
 <h2>Bugs available this month</h2>
-<table class="sortable">
+<input type="checkbox" id="show_donated_bugs"/> Show donated bugs?
+<table class="sortable" id="bug_table">
     <thead>
     <tr>
         <th>Donated?</th>
@@ -20,11 +21,11 @@
     <tbody>
     {{ range .Bugs }}
         {{ if .Timing.AvailableNow }}
-            <tr class="available hidden bug_row">
+            <tr class="available hidden bug_row" data-name="{{ .Name }}">
         {{ else }}
-            <tr class="unavailable hidden bug_row">
+            <tr class="unavailable hidden bug_row" data-name="{{ .Name }}">
         {{ end }}
-            <td><input type="checkbox" class="donated_checkbox" data-name="{{ .Name }}" data-critter_type="bugs" /></td>
+            <td><input type="checkbox" class="donated_checkbox" data-name="{{ .Name }}" data-critter_type="bugs" data-list="buglist" /></td>
             <td>{{ .Name }}</td>
             <td>{{ .Price }}</td>
             <td>
@@ -44,7 +45,8 @@
 </table>
 
 <h2>Fish available this month</h2>
-<table class="sortable">
+<input type="checkbox" id="show_donated_fish"/> Show donated fish?
+<table class="sortable" id="fish_table">
     <thead>
     <tr>
         <th>Name</th>
@@ -57,10 +59,11 @@
     <tbody>
     {{ range .Fishes }}
         {{ if .Timing.AvailableNow }}
-            <tr class="available">
+            <tr class="available hidden fish_row" data-name="{{ .Name }}">
         {{ else }}
-            <tr class="unavailable">
+            <tr class="unavailable hidden fish_row" data-name="{{ .Name }}">
         {{ end }}
+            <td><input type="checkbox" class="donated_checkbox" data-name="{{ .Name }}" data-critter_type="fishes" data-list="fishlist" /></td>
             <td>{{ .Name }}</td>
             <td>{{ .Price }}</td>
             <td>{{ .Location }}</td>
@@ -80,7 +83,8 @@
 </table>
 
 <h2>Sea Creatures available this month</h2>
-<table class="sortable">
+<input type="checkbox" id="show_donated_sea_creatures"/> Show donated Sea Creatures?
+<table class="sortable" id="sea_creature_table">
     <thead>
     <tr>
         <th>Name</th>
@@ -91,10 +95,11 @@
     <tbody>
     {{ range .SeaCreatures }}
         {{ if .Timing.AvailableNow }}
-            <tr class="available">
+            <tr class="available hidden sea_creature_row" data-name="{{ .Name }}">
         {{ else }}
-            <tr class="unavailable">
+            <tr class="unavailable hidden sea_creature_row" data-name="{{ .Name }}">
         {{ end }}
+        <td><input type="checkbox" class="donated_checkbox" data-name="{{ .Name }}" data-critter_type="sea_creatures" data-list="sclist" /></td>
         <td>{{ .Name }}</td>
             <td>{{ .Price }}</td>
             <td>

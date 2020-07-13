@@ -1,34 +1,98 @@
 let acnh = function() {
     let checkboxes = document.querySelectorAll(".donated_checkbox");
+    let critters = {};
+    ["bugs", "fishes", "sea_creatures"].forEach(function(listName) {
+        critters[listName] = [];
+        let str = window.localStorage.getItem(listName);
+        if (str != null && str != "") {
+            critters[listName] = str.split(",");
+        }
+    });
+
     checkboxes.forEach(function(checkbox) {
         checkbox.addEventListener("click", function(self) {
             console.log("I got clicked!");
             console.log(self.currentTarget.dataset["name"]);
-            bugStr = window.localStorage.getItem(self.currentTarget.dataset["critter_type"]);
-            if (bugStr == null || bugStr == "") {
-                buglist = [];
-            } else {
-                buglist = bugStr.split(",");
-            }
+            let critterType = checkbox.dataset["critter_type"];
             if (self.currentTarget.checked) {
-                if (!buglist.includes(self.currentTarget.dataset["name"])) {
-                    buglist.push(self.currentTarget.dataset["name"]);
+                if (!critters[critterType].includes(self.currentTarget.dataset["name"])) {
+                    critters[critterType].push(self.currentTarget.dataset["name"]);
                 }
             } else {
-                if (buglist.includes(self.currentTarget.dataset["name"])) {
-                    buglist = removeItemAll(buglist, self.currentTarget.dataset["name"]);
+                if (critters[critterType].includes(self.currentTarget.dataset["name"])) {
+                    critters[critterType] = removeItemAll(critters[critterType], self.currentTarget.dataset["name"]);
                 }
             }
-            bugStr = buglist.join(",");
-            window.localStorage.setItem(self.currentTarget.dataset["critter_type"], bugStr);
+            str = critters[critterType].join(",");
+            window.localStorage.setItem(self.currentTarget.dataset["critter_type"], str);
         })
     })
 
-    // Start by unhiding all the bug rows.
+    document.getElementById("show_donated_bugs").addEventListener("click", function(e) {
+        setDonatedBugsVisibility(e.currentTarget.checked);
+    });
+    document.getElementById("show_donated_fish").addEventListener("click", function(e) {
+        setDonatedFishVisibility(e.currentTarget.checked);
+    });
+    document.getElementById("show_donated_sea_creatures").addEventListener("click", function(e) {
+        setDonatedSCVisibility(e.currentTarget.checked);
+    });
+
     document.querySelectorAll(".bug_row").forEach(function(row) {
-        row.classList.remove("hidden");
+        if (!critters["bugs"].includes(row.dataset["name"])) {
+            row.classList.remove("hidden");
+        } else {
+            row.classList.add("donated");
+            row.children[0].querySelector('input').checked = true;
+        }
+    })
+    document.querySelectorAll(".fish_row").forEach(function(row) {
+        if (!critters["fishes"].includes(row.dataset["name"])) {
+            row.classList.remove("hidden");
+        } else {
+            row.classList.add("donated");
+            row.children[0].querySelector('input').checked = true;
+        }
+    })
+    document.querySelectorAll(".sea_creature_row").forEach(function(row) {
+        if (!critters["sea_creatures"].includes(row.dataset["name"])) {
+            row.classList.remove("hidden");
+        } else {
+            row.classList.add("donated");
+            row.children[0].querySelector('input').checked = true;
+        }
     })
 };
+
+function setDonatedBugsVisibility(visible) {
+    document.querySelectorAll("#bug_table .donated").forEach(function(elem) {
+        if (visible) {
+            elem.classList.remove("hidden");
+        } else {
+            elem.classList.add("hidden");
+        }
+    });
+}
+
+function setDonatedFishVisibility(visible) {
+    document.querySelectorAll("#fish_table .donated").forEach(function(elem) {
+        if (visible) {
+            elem.classList.remove("hidden");
+        } else {
+            elem.classList.add("hidden");
+        }
+    });
+}
+
+function setDonatedSCVisibility(visible) {
+    document.querySelectorAll("#sea_creature_table .donated").forEach(function(elem) {
+        if (visible) {
+            elem.classList.remove("hidden");
+        } else {
+            elem.classList.add("hidden");
+        }
+    });
+}
 
 function removeItemAll(arr, value) {
     var i = 0;
