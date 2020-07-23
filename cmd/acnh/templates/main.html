@@ -6,6 +6,30 @@
 </head>
 <body>
 
+
+<h2>Umbrellas</h2>
+<input type="checkbox" id="show_aquired_umbrellas"/> Show aquired umbrellas?
+<table class="sortable" id="umbrella_table">
+    <thead>
+    <tr>
+        <th>Acquired?</th>
+        <th>Name</th>
+        <th>Source</th>
+        <th>Source Notes</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range .Umbrellas }}
+        <tr data-name="{{ .Name }}" class="available hidden umbrella_row">
+            <td><input type="checkbox" class="donated_checkbox" data-name="{{ .Name }}" data-critter_type="umbrellas" /></td>
+            <td>{{ .Name }}</td>
+            <td>{{ .Source }}</td>
+            <td>{{ .SourceNotes }}</td>
+        </tr>
+    {{ end }}
+    </tbody>
+</table>
+
 <h2>Bugs available this month</h2>
 <input type="checkbox" id="show_donated_bugs"/> Show donated bugs?
 <table class="sortable" id="bug_table">
@@ -49,6 +73,7 @@
 <table class="sortable" id="fish_table">
     <thead>
     <tr>
+        <th>Donated?</th>
         <th>Name</th>
         <th>Price</th>
         <th>Location</th>
@@ -87,6 +112,7 @@
 <table class="sortable" id="sea_creature_table">
     <thead>
     <tr>
+        <th>Donated?</th>
         <th>Name</th>
         <th>Price</th>
         <th>Availability</th>
@@ -115,6 +141,7 @@
     {{ end }}
     </tbody>
 </table>
+
 </body>
 <script type="text/javascript" src="/acnh.js"></script>
 

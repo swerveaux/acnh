@@ -1,7 +1,7 @@
 let acnh = function() {
     let checkboxes = document.querySelectorAll(".donated_checkbox");
     let critters = {};
-    ["bugs", "fishes", "sea_creatures"].forEach(function(listName) {
+    ["bugs", "fishes", "sea_creatures", "umbrellas"].forEach(function(listName) {
         critters[listName] = [];
         let str = window.localStorage.getItem(listName);
         if (str != null && str != "") {
@@ -11,8 +11,6 @@ let acnh = function() {
 
     checkboxes.forEach(function(checkbox) {
         checkbox.addEventListener("click", function(self) {
-            console.log("I got clicked!");
-            console.log(self.currentTarget.dataset["name"]);
             let critterType = checkbox.dataset["critter_type"];
             if (self.currentTarget.checked) {
                 if (!critters[critterType].includes(self.currentTarget.dataset["name"])) {
@@ -37,6 +35,9 @@ let acnh = function() {
     document.getElementById("show_donated_sea_creatures").addEventListener("click", function(e) {
         setDonatedSCVisibility(e.currentTarget.checked);
     });
+    document.getElementById("show_aquired_umbrellas").addEventListener("click", function(e) {
+        setDonatedUmbrellaVisibility(e.currentTarget.checked);
+    });
 
     document.querySelectorAll(".bug_row").forEach(function(row) {
         if (!critters["bugs"].includes(row.dataset["name"])) {
@@ -56,6 +57,14 @@ let acnh = function() {
     })
     document.querySelectorAll(".sea_creature_row").forEach(function(row) {
         if (!critters["sea_creatures"].includes(row.dataset["name"])) {
+            row.classList.remove("hidden");
+        } else {
+            row.classList.add("donated");
+            row.children[0].querySelector('input').checked = true;
+        }
+    })
+    document.querySelectorAll(".umbrella_row").forEach(function(row) {
+        if (!critters["umbrellas"].includes(row.dataset["name"])) {
             row.classList.remove("hidden");
         } else {
             row.classList.add("donated");
@@ -86,6 +95,16 @@ function setDonatedFishVisibility(visible) {
 
 function setDonatedSCVisibility(visible) {
     document.querySelectorAll("#sea_creature_table .donated").forEach(function(elem) {
+        if (visible) {
+            elem.classList.remove("hidden");
+        } else {
+            elem.classList.add("hidden");
+        }
+    });
+}
+
+function setDonatedUmbrellaVisibility(visible) {
+    document.querySelectorAll("#umbrella_table .donated").forEach(function(elem) {
         if (visible) {
             elem.classList.remove("hidden");
         } else {

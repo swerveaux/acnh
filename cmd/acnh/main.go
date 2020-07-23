@@ -40,6 +40,22 @@ type Fish struct {
 	Timing     Timing
 }
 
+type Umbrella struct {
+	Name               string `json:"name"`
+	DIY                string `json:"diy"`
+	BuyPrice           string `json:"buy_price"`
+	SellPrice          string `json:"sell_price"`
+	HHABase            string `json:"hha_base"`
+	Color1             string `json:"color_1"`
+	Color2             string `json:"color_2"`
+	Size               string `json:"size"`
+	MilesPrice         string `json:"miles_price"`
+	Source             string `json:"source"`
+	SourceNotes        string `json:"source_notes"`
+	VillagerEquippable string `json:"villager_equippable"`
+	Catalog            string `json:"catalog"`
+}
+
 func (f *Fish) SetHourMap(m map[int]bool) {
 	f.HourMap = m
 }
@@ -74,6 +90,7 @@ type ACNH struct {
 	Bugs         []Bug         `json:"bugs"`
 	Fishes       []Fish        `json:"fishes"`
 	SeaCreatures []SeaCreature `json:"sea_creatures"`
+	Umbrellas    []Umbrella    `json:"umbrellas"`
 }
 
 type Timing struct {
@@ -227,6 +244,8 @@ func mainHandler(critters ACNH, tmpl *template.Template, logger Logger) http.Han
 				filteredCritters.SeaCreatures = append(filteredCritters.SeaCreatures, sc)
 			}
 		}
+
+		filteredCritters.Umbrellas = critters.Umbrellas
 
 		tmpl.Execute(w, filteredCritters)
 	}
