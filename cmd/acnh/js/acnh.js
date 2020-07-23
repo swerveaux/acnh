@@ -21,10 +21,10 @@ let acnh = function() {
                     critters[critterType] = removeItemAll(critters[critterType], self.currentTarget.dataset["name"]);
                 }
             }
-            str = critters[critterType].join(",");
+            let str = critters[critterType].join(",");
             window.localStorage.setItem(self.currentTarget.dataset["critter_type"], str);
         })
-    })
+    });
 
     document.getElementById("show_donated_bugs").addEventListener("click", function(e) {
         setDonatedBugsVisibility(e.currentTarget.checked);
